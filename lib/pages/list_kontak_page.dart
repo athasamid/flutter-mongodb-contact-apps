@@ -21,7 +21,9 @@ class _ListKontakPageState extends State<ListKontakPage> {
         title: "Kontak",
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              _showSearchDialog(context);
+            },
             icon: const Icon(
               Icons.search,
               color: Colors.white,
@@ -43,11 +45,78 @@ class _ListKontakPageState extends State<ListKontakPage> {
         ),
       ),
       body: RefreshIndicator(
-          child: ListView.builder(
-            itemCount: 10,
-            itemBuilder: (_, index) => _buildCardKontak(),
+        child: ListView.builder(
+          itemCount: 10,
+          itemBuilder: (_, index) => _buildCardKontak(),
+        ),
+        onRefresh: () async {},
+      ),
+    );
+  }
+
+  _showSearchDialog(context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          "Filter",
+          style: GoogleFonts.poppins(
+            fontSize: 24,
+            color: Colors.blueGrey.shade700,
           ),
-          onRefresh: () async {}),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: null,
+              style: GoogleFonts.poppins(fontSize: 10),
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.green.shade600,
+                  ),
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                disabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                hintText: "Search",
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              "Batal",
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: null,
+            child: Text(
+              "Terapkan",
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
