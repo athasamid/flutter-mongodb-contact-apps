@@ -1,9 +1,11 @@
+import 'package:demo_kontak_mongodb/models/database.dart';
 import 'package:demo_kontak_mongodb/pages/detail_kontak_page.dart';
 import 'package:demo_kontak_mongodb/pages/form_kontak_page.dart';
 import 'package:demo_kontak_mongodb/pages/list_kontak_page.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  await Database().openConnection();
   runApp(const MyApp());
 }
 

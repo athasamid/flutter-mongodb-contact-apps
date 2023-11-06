@@ -1,8 +1,11 @@
 import 'package:demo_kontak_mongodb/etc/utils.dart';
+import 'package:demo_kontak_mongodb/models/database.dart';
+import 'package:demo_kontak_mongodb/models/kontak.dart';
 import 'package:demo_kontak_mongodb/pages/detail_kontak_page.dart';
 import 'package:demo_kontak_mongodb/pages/form_kontak_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
 class ListKontakPage extends StatefulWidget {
   const ListKontakPage({super.key});
@@ -14,6 +17,22 @@ class ListKontakPage extends StatefulWidget {
 }
 
 class _ListKontakPageState extends State<ListKontakPage> {
+  List<Kontak> kontak = [];
+
+  Future<void> _getKontak() async {
+    final data = await Database().kontak?.find().toList() ?? [];
+    kontak = data
+        .map((e) => Kontak.fromMap(e, (e['_id'] as mongo.ObjectId).$oid))
+        .toList();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getKontak();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,8 +52,12 @@ class _ListKontakPageState extends State<ListKontakPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, FormKontakPage.routeName);
+        onPressed: () async {
+          var result =
+              await Navigator.pushNamed(context, FormKontakPage.routeName);
+          if (result is Map && result['ok']) {
+            _getKontak();
+          }
         },
         backgroundColor: Colors.green.shade600,
         shape: const CircleBorder(),
@@ -46,10 +69,12 @@ class _ListKontakPageState extends State<ListKontakPage> {
       ),
       body: RefreshIndicator(
         child: ListView.builder(
-          itemCount: 10,
-          itemBuilder: (_, index) => _buildCardKontak(),
+          itemCount: kontak.length,
+          itemBuilder: (_, index) => _buildCardKontak(kontak[index]),
         ),
-        onRefresh: () async {},
+        onRefresh: () async {
+          _getKontak();
+        },
       ),
     );
   }
@@ -120,10 +145,15 @@ class _ListKontakPageState extends State<ListKontakPage> {
     );
   }
 
-  Widget _buildCardKontak() {
+  Widget _buildCardKontak(Kontak kontak) {
     return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, DetailKontakPage.routeName);
+      onTap: () async {
+        var result = await Navigator.pushNamed(
+            context, DetailKontakPage.routeName,
+            arguments: {"id": kontak.id});
+        if (result is Map<String, dynamic> && result['ok']) {
+          _getKontak();
+        }
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -143,7 +173,7 @@ class _ListKontakPageState extends State<ListKontakPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Dhimas Atha",
+                    kontak.name ?? "",
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
